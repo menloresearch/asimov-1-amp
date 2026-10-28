@@ -4,21 +4,10 @@ Velocity tracking for the [Asimov-1](https://github.com/menloresearch/asimov-1) 
 [Isaac Lab](https://github.com/isaac-sim/IsaacLab), with an adversarial motion prior (AMP) reward learned
 from a reference walking clip.
 
-The plain velocity task for Asimov-1 (`IsaacContrib-Velocity-Rough-Asimov1`) is being added to Isaac Lab in
-[isaac-sim/IsaacLab#7071](https://github.com/isaac-sim/IsaacLab/pull/7071). This repository holds the AMP
-extension: the discriminator, its PPO training loop, and the motion data.
+## Requirements
 
-## Status
-
-- Isaac Lab 3.0 with the Isaac Sim PhysX backend. Newton and OvPhysX are not supported yet.
-- Until isaac-sim/IsaacLab#7071 is released, this repository carries its own copy of the Asimov-1 robot
-  configuration and base velocity task (`assets/asimov_1.py`, `tasks/velocity_amp/rough_env_cfg.py`,
-  `tasks/velocity_amp/mdp/`). The copies match the pull request and will be replaced by imports from
-  Isaac Lab once it ships.
-- The robot asset is not hosted on the Isaac Lab asset server yet. Until it is, point the configuration at
-  the 23-DoF URDF (head welded) in [menloresearch/asimov-1](https://github.com/menloresearch/asimov-1) at
-  commit `35ae7b3`, as shown below. The newer 25-DoF model in that repository adds actuated neck joints and is
-  not supported by this configuration yet.
+- Isaac Lab 3.0 with the Isaac Sim PhysX backend.
+- The Asimov-1 URDF from [menloresearch/asimov-1](https://github.com/menloresearch/asimov-1) at commit `35ae7b3`.
 
 ## Setup
 
@@ -73,7 +62,7 @@ src/asimov_1_amp/
 ├── assets/asimov_1.py                 Asimov-1 articulation with delayed PD actuators
 └── tasks/velocity_amp/
     ├── __init__.py                    registers Asimov1-Velocity-AMP
-    ├── rough_env_cfg.py, mdp/         base velocity task (mirrors isaac-sim/IsaacLab#7071)
+    ├── rough_env_cfg.py, mdp/         base velocity task
     ├── amp_env_cfg.py                 adds the `amp` observation group
     ├── agents/                        AMP PPO, discriminator, replay buffer, runner configuration
     └── motions/                       expert clip and loader
