@@ -219,9 +219,7 @@ ASIMOV_1_DELAYED_CFG = ArticulationCfg(
         merge_fixed_joints=True,
         joint_drive=sim_utils.UrdfFileCfg.JointDriveCfg(
             target_type="position",
-            gains=sim_utils.UrdfFileCfg.JointDriveCfg.PDGainsCfg(
-                stiffness=0.0, damping=0.0
-            ),
+            gains=sim_utils.UrdfFileCfg.JointDriveCfg.PDGainsCfg(stiffness=0.0, damping=0.0),
         ),
         activate_contact_sensors=True,
         rigid_props=sim_utils.RigidBodyPropertiesCfg(

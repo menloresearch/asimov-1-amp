@@ -68,6 +68,8 @@ isaaclab = ["isaaclab", "isaaclab_newton", "isaaclab_ov", "isaaclab_physx"]
 [tool.ruff.lint.per-file-ignores]
 "**/__init__.py" = ["F401", "F403"]
 "**/__init__.pyi" = ["F401", "F403"]
+# Mirrors isaac-sim/IsaacLab#7071 and keeps Isaac Lab's style until it can be imported from there.
+"src/asimov_1_amp/tasks/velocity_amp/mdp/*" = ["B008", "I001"]
 
 [tool.ruff.format]
 docstring-code-format = true
