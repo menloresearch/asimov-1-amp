@@ -115,7 +115,7 @@ class AMPPPO(PPO):
         amp_data = dataset_class(env=env.unwrapped, device=device, **amp_data_cfg)
 
         amp_obs_key = alg_cfg.get("amp_obs_key", "amp")
-        if amp_obs_key not in obs.keys():
+        if amp_obs_key not in obs.keys():  # noqa: SIM118 -- TensorDict has no `in` membership test
             raise ValueError(
                 f"AMPPPO expects an observation group '{amp_obs_key}' from the environment. "
                 f"Available groups: {list(obs.keys())}"
@@ -147,18 +147,14 @@ class AMPPPO(PPO):
         """Blend task and AMP rewards, then record the PPO transition."""
         amp_state = self.transition.observations[self.amp_obs_key]
         amp_next_state = obs[self.amp_obs_key]
-        if self.amp_rollout_obs_clip is not None:
-            done_mask = dones.bool().reshape(-1)
-            if torch.any(done_mask):
-                amp_next_state = amp_next_state.clone()
-                amp_next_state[done_mask] = amp_next_state[done_mask].clamp(
-                    -self.amp_rollout_obs_clip, self.amp_rollout_obs_clip
-                )
+        # Environments that reset this step return the first observation of their next episode, so their
+        # (state, next state) pair is not a motion transition. Keep it out of the reward and the replay buffer.
+        valid = ~dones.bool().reshape(-1)
 
         amp_rewards, discriminator_predictions = self.discriminator.predict_amp_reward(amp_state, amp_next_state)
-        amp_rewards = self.amp_reward_coef * amp_rewards
+        amp_rewards = self.amp_reward_coef * amp_rewards * valid
         gate = self._amp_command_gate()
-        self.amp_storage.insert(amp_state, amp_next_state)
+        self.amp_storage.insert(amp_state[valid], amp_next_state[valid])
         if gate is not None:
             amp_rewards = amp_rewards * gate
         total_rewards = (1.0 - self.amp_task_reward_lerp) * amp_rewards + self.amp_task_reward_lerp * rewards

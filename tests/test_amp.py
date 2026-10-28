@@ -177,6 +177,26 @@ def test_amp_ppo_pairs_frames_and_blends_rewards_without_custom_runner():
     assert next_obs["critic"].min() == -500.0
 
 
+def test_amp_ppo_excludes_transitions_that_cross_a_reset():
+    algorithm, storage, obs = _make_algorithm()
+    num_envs = len(obs)
+
+    initial_amp_state = obs["amp"].clone()
+    algorithm.act(obs)
+    next_obs = obs.clone()
+    next_obs["amp"] = torch.randn_like(obs["amp"])
+    task_reward = torch.tensor([2.0, 3.0])
+    dones = torch.tensor([1.0, 0.0])
+
+    algorithm.process_env_step(next_obs, task_reward, dones, {"log": {}})
+
+    # env 0 reset this step, so its next AMP state belongs to a new episode: no AMP reward, no stored pair
+    assert algorithm.amp_storage.num_samples == num_envs - 1
+    torch.testing.assert_close(algorithm.amp_storage.states[:1], initial_amp_state[1:])
+    torch.testing.assert_close(algorithm.amp_storage.next_states[:1], next_obs["amp"][1:])
+    torch.testing.assert_close(storage.rewards[0, :, 0], 0.7 * task_reward)
+
+
 def test_amp_ppo_uses_one_joint_optimizer():
     algorithm, _, _ = _make_algorithm()
 
@@ -214,9 +234,11 @@ def test_amp_ppo_updates_policy_and_discriminator_in_one_step():
 
     assert "amp" in losses
     assert storage.step == 0
-    assert any(not torch.equal(before, after) for before, after in zip(actor_before, algorithm.actor.parameters()))
+    assert any(
+        not torch.equal(before, after) for before, after in zip(actor_before, algorithm.actor.parameters(), strict=True)
+    )
     assert any(
         not torch.equal(before, after)
-        for before, after in zip(discriminator_before, algorithm.discriminator.parameters())
+        for before, after in zip(discriminator_before, algorithm.discriminator.parameters(), strict=True)
     )
     assert {group["lr"] for group in algorithm.optimizer.param_groups} == {algorithm.learning_rate}

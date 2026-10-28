@@ -59,6 +59,7 @@ Playback uses the task's `play_mode()`: 32 environments, no pushes or randomizat
   switched off for standing commands (command norm below 0.1).
 - **Training.** The least-squares discriminator, with a gradient penalty on expert samples, is updated
   together with PPO in one optimizer. Policy transitions are kept in a replay buffer of 100k pairs.
+  Pairs that cross an episode reset get no AMP reward and are left out of the buffer.
 
 All AMP settings live in `AMPPPOAlgorithmCfg` in `tasks/velocity_amp/agents/rsl_rl_ppo_cfg.py`.
 
