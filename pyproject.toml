@@ -24,11 +24,35 @@ asimov_1_amp = "asimov_1_amp.tasks"
 dev = ["pre-commit>=4.2", "pytest>=8.3", "ruff>=0.11"]
 
 [tool.uv]
+# Matches Isaac Lab's documented Isaac Sim install: pypi.nvidia.com as an extra index, best-match across
+# indexes, and pre-releases for Isaac Sim's pinned dependencies.
+index-strategy = "unsafe-best-match"
+prerelease = "allow"
 environments = ["sys_platform == 'linux' and platform_machine == 'x86_64'", "sys_platform == 'win32' and platform_machine == 'AMD64'"]
+# Isaac Sim 6.2 pins versions that conflict with Isaac Lab 3.0. These mirror Isaac Lab's tested overrides in
+# tools/wheel_builder/uv-overrides.txt on the release/3.0.0 branch.
+override-dependencies = [
+    "numpy>=2",
+    "mujoco~=3.12.0",
+    "mujoco-warp~=3.12.0",
+    "newton[sim]==1.6.1",
+    "newton-usd-schemas>=0.5.0",
+    "usd-exchange==3.0.1",
+    "usd-optimize~=1.3.1",
+    "torch==2.11.0",
+    "torchvision==0.26.0",
+    "fsspec>=2026.6.0",
+    "packaging>=20,<27",
+    "urllib3>=2.8.0",
+]
 
 [tool.uv.sources]
 isaaclab = { git = "https://github.com/isaac-sim/IsaacLab.git", branch = "release/3.0.0", subdirectory = "tools/wheel_builder" }
 torch = { index = "pytorch-cu130" }
+
+[[tool.uv.index]]
+name = "nvidia"
+url = "https://pypi.nvidia.com"
 
 [[tool.uv.index]]
 name = "pytorch-cu130"
