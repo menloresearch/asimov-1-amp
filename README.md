@@ -16,12 +16,15 @@ extension: the discriminator, its PPO training loop, and the motion data.
   `tasks/velocity_amp/mdp/`). The copies match the pull request and will be replaced by imports from
   Isaac Lab once it ships.
 - The robot asset is not hosted on the Isaac Lab asset server yet. Until it is, point the configuration at
-  the URDF in [menloresearch/asimov-1](https://github.com/menloresearch/asimov-1), as shown below.
+  the 23-DoF URDF (head welded) in [menloresearch/asimov-1](https://github.com/menloresearch/asimov-1) at
+  commit `35ae7b3`, as shown below. The newer 25-DoF model in that repository adds actuated neck joints and is
+  not supported by this configuration yet.
 
 ## Setup
 
 ```bash
 git clone https://github.com/menloresearch/asimov-1.git
+git -C asimov-1 checkout 35ae7b3
 git clone https://github.com/menloresearch/asimov-1-amp.git
 cd asimov-1-amp
 export OMNI_KIT_ACCEPT_EULA=YES
